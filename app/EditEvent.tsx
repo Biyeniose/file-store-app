@@ -225,6 +225,7 @@ const styles = StyleSheet.create({
   modalHeader: {
     fontSize: 24,
     marginBottom: 20,
+    marginTop: 30,
     color: "#fff",
   },
   searchInput: {

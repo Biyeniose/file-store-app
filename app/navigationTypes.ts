@@ -8,5 +8,8 @@ export type RootStackParamList = {
   BusyTimes: undefined;
   EditEvent: undefined;
   OptimizePage: undefined;
-  EventDetailPage: undefined;
+  EventDetailPage: {
+    eventId: string;
+    eventName: string;
+  };
 };

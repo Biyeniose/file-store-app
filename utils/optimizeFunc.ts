@@ -53,6 +53,8 @@ function optimizeFunc(
   return availableBlocks;
 }
 
+export default optimizeFunc;
+
 // Example usage
 const startDate = "2024-06-10";
 const endDate = "2024-06-16";

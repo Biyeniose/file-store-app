@@ -6,6 +6,8 @@ import { NavigationProp } from "@react-navigation/core";
 import { RootStackParamList } from "./navigationTypes";
 import { useAuth } from "../provider/AuthProvider";
 import { supabase } from "../config/initSupabase";
+import optimizeFunc from "../utils/optimizeFunc";
+import moment from "moment";
 
 interface Event {
   id: string;
@@ -42,7 +44,16 @@ const OptimizePage = () => {
       <Text style={styles.header}>Optimize Schedules</Text>
       <View style={styles.eventList}>
         {events.map((event) => (
-          <TouchableOpacity key={event.id} style={styles.eventButton}>
+          <TouchableOpacity
+            key={event.id}
+            style={styles.eventButton}
+            onPress={() =>
+              navigation.navigate("EventDetailPage", {
+                eventId: event.id,
+                eventName: event.event_name,
+              })
+            }
+          >
             <Text style={styles.eventText}>
               {event.id}: {event.event_name}
             </Text>
