@@ -18,8 +18,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [lastName, setLastName] = useState("");
+
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
@@ -37,8 +36,6 @@ const SignUp = () => {
         .upsert({
           id: (await user).data.user?.id,
           username,
-          full_name: fullName,
-          last_name: lastName,
         })
         .select();
 
@@ -75,18 +72,6 @@ const SignUp = () => {
           placeholder="Username"
           value={username}
           onChangeText={setUsername}
-          style={styles.inputField}
-        />
-        <TextInput
-          placeholder="Full Name"
-          value={fullName}
-          onChangeText={setFullName}
-          style={styles.inputField}
-        />
-        <TextInput
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
           style={styles.inputField}
         />
 

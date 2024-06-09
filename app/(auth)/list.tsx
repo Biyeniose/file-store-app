@@ -4,26 +4,45 @@ import {
   TouchableOpacity,
   ScrollView,
   Text,
+  Button,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../../provider/AuthProvider";
-import * as FileSystem from "expo-file-system";
-import { decode } from "base64-arraybuffer";
+
 import { supabase } from "../../config/initSupabase";
 import { FileObject } from "@supabase/storage-js";
-import ImageItem from "../../components/ImageItem";
+//import DateTimePicker from "react-native-ui-datepicker";
+import dayjs from "dayjs";
+
+import CalendarComponent from "../../components/CalenderComponent";
+
+import DateTimePicker from "@react-native-community/datetimepicker";
+import TimeRangePicker from "../../components/TimeRangePicker";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "../navigationTypes";
 
 const list = () => {
   const { user } = useAuth();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [files, setFiles] = useState<FileObject[]>([]);
-  const [username, setusername] = useState("");
+  //const [date, setDate] = useState(new Date());
+  const [username, setUsername] = useState("");
+  //const [range, setRange] = useState({});
+  const [selected, setSelected] = useState("");
+  const [date, setDate] = useState(dayjs());
+  const formattedDate = dayjs("2024-06-10");
+  //const [value, onChange] = useState<Value>([new Date(), new Date()]);
+
+  // Format the date to a string in 'DD/MM/YYYY' format
+  const date_1 = formattedDate.format("DD/MM/YYYY");
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   useEffect(() => {
     if (!user) return;
 
     // Load user images
+    get_user_name();
     loadImages();
   }, [user]);
 
@@ -42,63 +61,41 @@ const list = () => {
       .eq("id", (await user).data.user?.id);
 
     if (data) {
-      setusername(data[0]?.username ?? "Temp");
+      setUsername(data[0]?.username ?? "Temp");
     }
   };
-
-  const onSelectImage = async () => {
-    const options: ImagePicker.ImagePickerOptions = {
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-    };
-
-    const result = await ImagePicker.launchImageLibraryAsync(options);
-
-    // Save image if not cancelled
-    if (!result.canceled) {
-      const img = result.assets[0];
-      const base64 = await FileSystem.readAsStringAsync(img.uri, {
-        encoding: "base64",
-      });
-      const filePath = `${user!.id}/${new Date().getTime()}.${
-        img.type === "image" ? "png" : "mp4"
-      }`;
-      const contentType = img.type === "image" ? "image/png" : "video/mp4";
-      await supabase.storage
-        .from("files")
-        .upload(filePath, decode(base64), { contentType });
-      loadImages();
-    }
-  };
-
-  const onRemoveImage = async (item: FileObject, listIndex: number) => {
-    supabase.storage.from("files").remove([`${user!.id}/${item.name}`]);
-    const newFiles = [...files];
-    newFiles.splice(listIndex, 1);
-    setFiles(newFiles);
-  };
-
-  useEffect(() => {
-    get_user_name();
-  }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.defaultText}>Hi user</Text>
       <Text style={styles.usernameText}>Username : {username} </Text>
-      <ScrollView>
-        {files.map((item, index) => (
-          <ImageItem
-            key={item.id}
-            item={item}
-            userId={user!.id}
-            onRemoveImage={() => onRemoveImage(item, index)}
-          />
-        ))}
-      </ScrollView>
-      {/* FAB to add images */}
-      <TouchableOpacity onPress={onSelectImage} style={styles.fab}>
-        <Ionicons name="camera-outline" size={30} color={"#fff"} />
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("BusyTimes")}
+      >
+        <Text style={styles.buttonText}>Edit Busy Times</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("AddEvent")}
+      >
+        <Text style={styles.buttonText}>Create Event</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("EditEvent")}
+      >
+        <Text style={styles.buttonText}>Edit Event</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("OptimizePage")}
+      >
+        <Text style={styles.buttonText}>Schedule Optimizer</Text>
       </TouchableOpacity>
     </View>
   );
@@ -107,8 +104,9 @@ const list = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 12,
     backgroundColor: "#151515",
+    alignItems: "center",
   },
   fab: {
     borderWidth: 1,
@@ -127,6 +125,15 @@ const styles = StyleSheet.create({
   },
   usernameText: {
     color: "lightgreen",
+  },
+  button: {
+    backgroundColor: "#2b825b",
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
   },
 });
 
